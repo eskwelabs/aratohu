@@ -121,7 +121,7 @@ export class TableOfContents extends Widget {
       </div>
     );
     if (this._current && this._current.generator) {
-      console.log("TOCTree Component JSX build", this._current);
+      // console.log("TOCTree Component JSX build", this._current);
 
       const activeCellText = (this._current.generator.tracker as any).activeCell
         .model.value.text;

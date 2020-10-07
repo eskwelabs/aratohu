@@ -113,6 +113,8 @@ async function activateTOC(
   // Update the ToC when the active widget changes:
   labShell.currentChanged.connect(onConnect);
 
+  labShell.expandRight();
+
   return registry;
 
   /**

@@ -1,23 +1,23 @@
 {
-  "name": "@jupyterlab/toc",
-  "version": "4.0.0",
-  "private": false,
-  "description": "Table of Contents extension for JupyterLab",
+  "name": "aratohu",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Video guide enhancement to Table of Contents extension",
   "keywords": [
     "jupyter",
     "jupyterlab",
     "jupyterlab-extension"
   ],
-  "homepage": "https://github.com/jupyterlab/jupyterlab-toc",
+  "homepage": "https://github.com/eskwelabs/aratohu",
   "bugs": {
-    "url": "https://github.com/jupyterlab/jupyterlab-toc/issues"
+    "url": "https://github.com/eskwelabs/aratohu/issues"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/jupyterlab/jupyterlab-toc.git"
+    "url": "https://github.com/eskwelabs/aratohu.git"
   },
   "license": "BSD-3-Clause",
-  "author": "Project Jupyter",
+  "author": "Eskwelabs",
   "files": [
     "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
     "schema/*.json",

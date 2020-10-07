@@ -3,6 +3,7 @@
 
 import * as React from "react";
 import { IHeading } from "./utils/headings";
+import { getTitleString } from "./utils/title_string";
 
 /**
  * Interface describing component properties.
@@ -22,6 +23,8 @@ interface IProperties extends React.Props<TOCItem> {
    * @returns rendered heading
    */
   itemRenderer: (item: IHeading) => JSX.Element | null;
+
+  triggerCells: any;
 }
 
 /**
@@ -43,7 +46,7 @@ class TOCItem extends React.Component<IProperties, IState> {
    * @returns rendered entry
    */
   render() {
-    const { heading } = this.props;
+    const { heading, triggerCells } = this.props;
 
     // Create an onClick handler for the TOC item
     // that scrolls the anchor into view.
@@ -54,6 +57,13 @@ class TOCItem extends React.Component<IProperties, IState> {
     };
 
     let content = this.props.itemRenderer(heading);
+
+    const titleString = getTitleString(heading.text);
+
+    if (titleString in triggerCells) {
+      return content && <li onClick={onClick}>{content} 🎥</li>;
+    }
+
     return content && <li onClick={onClick}>{content}</li>;
   }
 }
