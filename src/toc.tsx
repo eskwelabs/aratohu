@@ -12,6 +12,22 @@ import { IHeading } from "./utils/headings";
 import { TableOfContentsRegistry as Registry } from "./registry";
 import { TOCTree } from "./toc_tree";
 
+function debounce(callback: Function, wait: number, immediate = false) {
+  let timeout: number | undefined;
+
+  return function() {
+    const callNow = immediate && !timeout;
+    const next = () => callback.apply(this, arguments);
+
+    clearTimeout(timeout);
+    timeout = setTimeout(next, wait);
+
+    if (callNow) {
+      next();
+    }
+  };
+}
+
 /**
  * Timeout for throttling ToC rendering.
  *
@@ -65,6 +81,7 @@ export class TableOfContents extends Widget {
     if (this.generator && this.generator.toolbarGenerator) {
       this._toolbar = this.generator.toolbarGenerator();
     }
+
     // Dispose an old activity monitor if one existed...
     if (this._monitor) {
       this._monitor.dispose();
@@ -85,6 +102,15 @@ export class TableOfContents extends Widget {
       signal: context.model.contentChanged,
       timeout: RENDER_TIMEOUT
     });
+
+    this.onResize = debounce(
+      function() {
+        this.update();
+      },
+      300,
+      true
+    );
+
     this._monitor.activityStopped.connect(this.update, this);
     this.update();
   }
@@ -106,7 +132,6 @@ export class TableOfContents extends Widget {
       `https://api.eskwelabs.com/api/v2/notebook-videos/${code}`
     );
     const result = await response.json();
-    console.log(result.videos);
     return result.videos;
   }
 
@@ -116,10 +141,9 @@ export class TableOfContents extends Widget {
    * @param msg - message
    */
   protected onUpdateRequest(msg: Message): void {
-    console.log("onUpdateRequest");
-
     let toc: IHeading[] = [];
     let title = "Table of Contents";
+
     if (this._current) {
       toc = this._current.generator.generate(this._current.widget);
       const context = this._docmanager.contextForWidget(this._current.widget);
@@ -127,35 +151,35 @@ export class TableOfContents extends Widget {
         title = PathExt.basename(context.localPath);
       }
     }
+
     let itemRenderer: (item: IHeading) => JSX.Element | null = (
       item: IHeading
     ) => {
       return <span>{item.text}</span>;
     };
+
     if (this._current && this._current.generator.itemRenderer) {
       itemRenderer = this._current.generator.itemRenderer!;
     }
+
     let jsx = (
       <div className="jp-TableOfContents">
         <header>{title}</header>
       </div>
     );
-    if (this._current && this._current.generator) {
-      // console.log("TOCTree Component JSX build", this._current);
 
-      const activeCellId = (this.generator!
+    if (this._current && this._current.generator) {
+      const activeCellId = (this._current.generator!
         .tracker as any).activeCell.model.metadata.get("aratohu-id");
 
-      console.log("activeCellId", activeCellId);
+      const activeCellText = (this._current.generator.tracker as any).activeCell
+        .model.value.text;
 
       const notebookId = (this._current
         .widget as any).context.model.metadata.get("aratohu-id");
 
-      console.log(notebookId);
-
-      if (notebookId) {
+      if (notebookId && this.aratohuId != notebookId) {
         this.aratohuId = notebookId;
-        console.log("Updated Aratohu ID");
 
         this.fetchVideos(this.aratohuId!).then(
           result => {
@@ -166,8 +190,6 @@ export class TableOfContents extends Widget {
         );
       }
 
-      console.log("aratohuId: ", this.aratohuId);
-
       jsx = (
         <TOCTree
           title={title}
@@ -176,6 +198,7 @@ export class TableOfContents extends Widget {
           itemRenderer={itemRenderer}
           toolbar={this._toolbar}
           activeCell={activeCellId}
+          activeCellText={activeCellText}
           triggerCells={this.triggerCells}
         />
       );

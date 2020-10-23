@@ -7,6 +7,7 @@ import { IHeading } from "./utils/headings";
 import { TableOfContentsRegistry as Registry } from "./registry";
 import { TOCItem } from "./toc_item";
 import { VideoResponse } from "./toc";
+import { getTitleString } from "./utils/title_string";
 
 /**
  * Interface describing component properties.
@@ -25,19 +26,24 @@ interface IProperties {
   toc: IHeading[];
 
   /**
-   * Toolbar.
-   */
-  toolbar: any;
-
-  /**
    * Table of contents generator.
    */
   generator: Registry.IGenerator<Widget> | null;
 
   /**
-   * Text of the current active cell
+   * Toolbar
+   */
+  toolbar: any;
+
+  /**
+   * Metadata ID of the current active cell
    */
   activeCell: string;
+
+  /**
+   * Text of the current active cell
+   */
+  activeCellText: string;
 
   /**
    * List of trigger cells
@@ -66,7 +72,10 @@ interface IState {}
  * @private
  */
 class TOCTree extends React.Component<IProperties, IState> {
-  protected triggerCellIds(triggerCells: VideoResponse[]) {
+  protected triggerCellIds(triggerCells: VideoResponse[] | null) {
+    if (!triggerCells) {
+      return [];
+    }
     return triggerCells.map((t: VideoResponse) => t.cellMetadataId);
   }
 
@@ -77,8 +86,8 @@ class TOCTree extends React.Component<IProperties, IState> {
     let videoUrl;
     const Toolbar = this.props.toolbar;
     // const metadata = this.props.metadata;
-    const activeCell = this.props.activeCell;
-    const triggerCells = this.props.triggerCells;
+    const { activeCell, activeCellText, triggerCells } = this.props;
+    const triggerCellIds = this.triggerCellIds(triggerCells);
 
     // Map the heading objects onto a list of JSX elements...
     let i = 0;
@@ -88,7 +97,9 @@ class TOCTree extends React.Component<IProperties, IState> {
           heading={el}
           itemRenderer={this.props.itemRenderer}
           key={`${el.text}-${el.level}-${i++}`}
-          triggerCells={triggerCells}
+          hasVideo={triggerCellIds.includes(
+            (el as any).cellRef.model.metadata.get("aratohu-id")
+          )}
         />
       );
     });
@@ -102,27 +113,37 @@ class TOCTree extends React.Component<IProperties, IState> {
       height = (elWidth / 16) * 9;
     }
 
-    console.log("TOCTree render", this.props);
-
-    if (activeCell in this.triggerCellIds(triggerCells)) {
-      videoUrl = triggerCells.filter(a => a.cellMetadataId === activeCell);
+    if (activeCell && triggerCellIds.includes(activeCell)) {
+      const triggerCell = triggerCells.find(
+        a => a.cellMetadataId === activeCell
+      );
+      if (triggerCell) {
+        videoUrl = triggerCell.videoUrl;
+      }
     }
 
     return (
       <div className="jp-TableOfContents">
         <header>{this.props.title}</header>
-        {activeCell && videoUrl && (
+        {activeCell && videoUrl ? (
           <iframe
             width="100%"
             height={height}
             src={
               videoUrl +
-              "?modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&theme=light&color=white&controls=0"
+              "?modestbranding=1&showinfo=0&rel=0&iv_load_policy=3&theme=light&color=white"
             }
             allow="accelerometer; autoplay; encrypted-media; gyroscope"
+            style={{ border: "none" }}
           ></iframe>
+        ) : (
+          <img
+            src="https://d1igpor9ui96fr.cloudfront.net/aaplus/aaplus-logo.svg"
+            width="100%"
+            height={height}
+          />
         )}
-        {Toolbar && <Toolbar />}
+        {Toolbar && <Toolbar currentCell={getTitleString(activeCellText)} />}
         <ul className="jp-TableOfContents-content">{list}</ul>
       </div>
     );
