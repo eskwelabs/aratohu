@@ -19,10 +19,19 @@ import { TOCTree } from "./toc_tree";
  */
 const RENDER_TIMEOUT = 1000;
 
+export type VideoResponse = {
+  _id: string;
+  cellMetadataId: string;
+  cellTitle: string;
+  videoUrl: string;
+};
+
 /**
  * Widget for hosting a notebook table of contents.
  */
 export class TableOfContents extends Widget {
+  triggerCells: VideoResponse[];
+  aratohuId: string | null;
   /**
    * Returns a new table of contents.
    *
@@ -92,12 +101,23 @@ export class TableOfContents extends Widget {
     return null;
   }
 
+  protected async fetchVideos(code: string): Promise<VideoResponse[]> {
+    const response = await fetch(
+      `https://api.eskwelabs.com/api/v2/notebook-videos/${code}`
+    );
+    const result = await response.json();
+    console.log(result.videos);
+    return result.videos;
+  }
+
   /**
    * Callback invoked upon an update request.
    *
    * @param msg - message
    */
   protected onUpdateRequest(msg: Message): void {
+    console.log("onUpdateRequest");
+
     let toc: IHeading[] = [];
     let title = "Table of Contents";
     if (this._current) {
@@ -123,9 +143,30 @@ export class TableOfContents extends Widget {
     if (this._current && this._current.generator) {
       // console.log("TOCTree Component JSX build", this._current);
 
-      const activeCellText = (this._current.generator.tracker as any).activeCell
-        .model.value.text;
-      const metadata = (this._current.widget as any).context.model.metadata;
+      const activeCellId = (this.generator!
+        .tracker as any).activeCell.model.metadata.get("aratohu-id");
+
+      console.log("activeCellId", activeCellId);
+
+      const notebookId = (this._current
+        .widget as any).context.model.metadata.get("aratohu-id");
+
+      console.log(notebookId);
+
+      if (notebookId) {
+        this.aratohuId = notebookId;
+        console.log("Updated Aratohu ID");
+
+        this.fetchVideos(this.aratohuId!).then(
+          result => {
+            this.triggerCells = result;
+            this.update();
+          },
+          reason => console.error(reason)
+        );
+      }
+
+      console.log("aratohuId: ", this.aratohuId);
 
       jsx = (
         <TOCTree
@@ -134,8 +175,8 @@ export class TableOfContents extends Widget {
           generator={this.generator}
           itemRenderer={itemRenderer}
           toolbar={this._toolbar}
-          activeCell={activeCellText}
-          metadata={metadata}
+          activeCell={activeCellId}
+          triggerCells={this.triggerCells}
         />
       );
     }
