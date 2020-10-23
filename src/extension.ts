@@ -65,12 +65,12 @@ async function activateTOC(
   labShell.add(toc, "right", { rank: 100 });
 
   // Add the ToC widget to the application restorer:
-  restorer.add(toc, "@jupyterlab/toc:plugin");
+  restorer.add(toc, "@eskwelabs/aratohu:plugin");
 
   // Attempt to load plugin settings:
   let settings: ISettingRegistry.ISettings | undefined;
   try {
-    settings = await settingRegistry.load("@jupyterlab/toc:plugin");
+    settings = await settingRegistry.load("@eskwelabs/aratohu:plugin");
   } catch (error) {
     console.error(
       `Failed to load settings for the Table of Contents extension.\n\n${error}`
@@ -113,6 +113,7 @@ async function activateTOC(
   // Update the ToC when the active widget changes:
   labShell.currentChanged.connect(onConnect);
 
+  labShell.collapseLeft();
   labShell.expandRight();
 
   return registry;

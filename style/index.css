@@ -53,13 +53,13 @@
   text-transform: uppercase;
 }
 
-/* [data-jp-theme-light="true"] .jp-TableOfContents-icon {
+[data-jp-theme-light="true"] .jp-TableOfContents-icon {
   background-image: url(list-light.svg);
 }
 
 [data-jp-theme-light="false"] .jp-TableOfContents-icon {
   background-image: url(list-dark.svg);
-} */
+}
 
 .jp-TableOfContents-codeContainer {
   overflow: hidden;
@@ -191,6 +191,7 @@
   margin: 0px;
   user-select: none;
   border-bottom: var(--jp-border-width) solid var(--jp-border-color2);
+  border-top: var(--jp-border-width) solid var(--jp-border-color2);
   height: 36px;
   display: flex;
   align-items: center;
@@ -214,6 +215,7 @@
   cursor: default;
   min-width: 11px;
   position: absolute;
+  display: none;
 }
 
 .toc-arrow-img {
