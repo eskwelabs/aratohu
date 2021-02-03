@@ -28,7 +28,6 @@
   "scripts": {
     "build": "tsc",
     "clean": "rimraf lib",
-    "precommit": "lint-staged",
     "prettier": "prettier --write '**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}'",
     "watch": "tsc -w"
   },
@@ -77,5 +76,10 @@
   "jupyterlab": {
     "extension": "lib/extension.js",
     "schemaDir": "schema"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
   }
 }
