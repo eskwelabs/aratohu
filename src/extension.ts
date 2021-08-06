@@ -5,7 +5,7 @@ import {
   ILabShell,
   ILayoutRestorer,
   JupyterFrontEnd,
-  JupyterFrontEndPlugin
+  JupyterFrontEndPlugin,
 } from "@jupyterlab/application";
 import { IDocumentManager } from "@jupyterlab/docmanager";
 import { IEditorTracker } from "@jupyterlab/fileeditor";
@@ -19,11 +19,11 @@ import {
   createNotebookGenerator,
   createMarkdownGenerator,
   createPythonGenerator,
-  createRenderedMarkdownGenerator
+  createRenderedMarkdownGenerator,
 } from "./generators";
 import {
   ITableOfContentsRegistry,
-  TableOfContentsRegistry as Registry
+  TableOfContentsRegistry as Registry,
 } from "./registry";
 import "../style/index.css";
 
@@ -147,7 +147,7 @@ async function activateTOC(
  * @private
  */
 const extension: JupyterFrontEndPlugin<ITableOfContentsRegistry> = {
-  id: "@jupyterlab/toc:plugin",
+  id: "@jupyterlab/toc-eskwelabs:plugin",
   autoStart: true,
   provides: ITableOfContentsRegistry,
   requires: [
@@ -158,9 +158,9 @@ const extension: JupyterFrontEndPlugin<ITableOfContentsRegistry> = {
     IMarkdownViewerTracker,
     INotebookTracker,
     IRenderMimeRegistry,
-    ISettingRegistry
+    ISettingRegistry,
   ],
-  activate: activateTOC
+  activate: activateTOC,
 };
 
 /**
